@@ -1,2 +1,0 @@
-# fastapi
-CRUD FASTAPI
