@@ -1,5 +1,23 @@
+from enum import Enum
 from pydantic import BaseModel
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Relationship
+
+class StatusEnum(str, Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+
+class CustomerPlan (SQLModel, table= True):
+    id: int = Field(primary_key=True )
+    plan_id: int = Field(foreign_key="plan.id")
+    customer_id: int = Field(foreign_key="customer.id")
+    status: StatusEnum = Field(default=StatusEnum.ACTIVE)
+
+class Plan (SQLModel, table= True):
+    id: int | None = Field(primary_key=True)
+    name: str  = Field(default=None)    
+    price: int = Field(default=None)
+    decription: str | None = Field(default=None)
+    customers: list['Customer'] = Relationship(back_populates="plans", link_model=CustomerPlan)
 
 class CustomerBase(SQLModel):
     name: str = Field(default=None)    
@@ -15,12 +33,19 @@ class CustomerUpdate(CustomerBase):
 
 class Customer(CustomerBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    #id: Union[str, None] = None
+    transactions:list["Transaction"] = Relationship(back_populates="customer")
+    plans: list [Plan] = Relationship(back_populates="customers", link_model= CustomerPlan)
 
-class Transaction(BaseModel):
-    id: int
+class TransactionBase(SQLModel):
     ammount: int
     description: str
+class Transaction(TransactionBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    customer_id: int = Field(foreign_key="customer.id")
+    customer: Customer = Relationship(back_populates="transactions")
+
+class TransactionCreate(TransactionBase):
+    customer_id: int = Field(foreign_key="customer.id")
 
 class Invoice(BaseModel):
     id: int

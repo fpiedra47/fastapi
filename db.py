@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, create_engine, SQLModel
 
-sqlite_name = "db.sqlite3"
+sqlite_name = "db.sqlite4"
 sqlite_url = f"sqlite:///{sqlite_name}"
 engine = create_engine(sqlite_url)
 
