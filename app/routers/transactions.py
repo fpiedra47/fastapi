@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query
 from models import Transaction, TransactionCreate, Customer
 from db import SessionDep
 from sqlmodel import select, insert
@@ -20,8 +20,11 @@ async def create_transation(transaction_data: TransactionCreate, session: Sessio
     return transaction_db
 
 @router.get("/transactions", tags=["transactions"])
-async def list_transation(session: SessionDep):
-    print("hgola mudo")
-    query = select(Transaction)
+async def list_transaction(
+    session: SessionDep,
+    skip: int = Query(0, description="Registros a omitir"),
+    limit: int = Query(10, description="Número de registros"),
+):
+    query = select(Transaction).offset(skip).limit(limit)
     transactions = session.exec(query).all()
-    return  transactions
+    return transactions
